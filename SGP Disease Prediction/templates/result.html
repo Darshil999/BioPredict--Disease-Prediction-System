@@ -1,75 +1,122 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ predictor.name }} Insights &middot; BioPredict{% endblock %}
 
 {% block content %}
-<div class="container text-center my-5">
-    <div class="card shadow-lg p-5 animate__animated animate__fadeInUp" style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white;">
-        <h1 class="display-4"><i class="fas fa-notes-medical"></i> Prediction Result</h1>
-        <p class="lead">{{ prediction }}</p>
+<div class="container py-5" style="max-width: 960px;">
+    <p class="bp-eyebrow mb-2">Prediction Insights</p>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <img src="{% static predictor.icon %}" alt="" class="bp-icon">
+        <div>
+            <h1 class="h3 fw-bold mb-1">{{ predictor.name }}</h1>
+            <p class="text-body-secondary mb-0">{{ predictor.model_type }}</p>
+        </div>
+    </div>
 
-        <div class="mt-3">
-            {% if prediction_type == 'heart' %}
-                <p><i class="fas fa-heartbeat fa-3x"></i></p>
-                <p>This result pertains to Heart Disease Prediction.</p>
-            {% elif prediction_type == 'diabetes' %}
-                <p><i class="fas fa-syringe fa-3x"></i></p>
-                <p>This result pertains to Diabetes Prediction.</p>
-            {% endif %}
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="bp-card p-4 h-100">
+                <h2 class="h6 text-body-secondary fw-semibold mb-3">Model result</h2>
+                <div class="bp-result-state {% if result.elevated %}is-elevated{% else %}is-lower{% endif %} mb-4">
+                    <div class="bp-result-label h4 fw-bold mb-1">
+                        {% if result.elevated %}
+                        <i class="bi bi-arrow-up-right-circle me-1"></i> Elevated predicted risk
+                        {% else %}
+                        <i class="bi bi-arrow-down-right-circle me-1"></i> Lower predicted risk
+                        {% endif %}
+                    </div>
+                    <p class="mb-0">
+                        {% if result.elevated %}
+                        For these inputs, the model predicts the higher-risk class for {{ predictor.name|lower }}.
+                        Consider discussing these indicators with a qualified clinician.
+                        {% else %}
+                        For these inputs, the model predicts the lower-risk class for {{ predictor.name|lower }}.
+                        This is not a clinical all-clear; consult a clinician about any symptoms.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <h2 class="h6 text-body-secondary fw-semibold mb-3">Model confidence</h2>
+                {% if result.confidence is not None %}
+                {% widthratio result.confidence 1 100 as confidence_pct %}
+                <div class="d-flex align-items-end gap-2 mb-2">
+                    <span class="bp-confidence-value">{{ confidence_pct }}%</span>
+                    <span class="text-body-secondary pb-1">for the predicted class</span>
+                </div>
+                <div class="progress bp-meter mb-3" role="progressbar" aria-label="Model confidence" aria-valuenow="{{ confidence_pct }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: {{ confidence_pct }}%"></div>
+                </div>
+                <p class="bp-disclaimer mb-0">
+                    Model confidence represents the output of the machine-learning model and should not be
+                    interpreted as a medical diagnosis or a clinically validated probability.
+                    {% if predictor.reconstructed_preprocessing %}
+                    For this model, input scaling is reconstructed from the model because the original
+                    preprocessing step was not saved, so scores may differ slightly from the original pipeline.
+                    {% endif %}
+                </p>
+                {% else %}
+                <p class="bp-disclaimer mb-0">
+                    Not available: this model was trained without probability estimates, so it returns a class
+                    label only. No confidence score is shown rather than an approximated one.
+                </p>
+                {% endif %}
+            </div>
         </div>
 
-        <a href="{% url 'home' %}" class="btn btn-light mt-4" style="color: #ff0000;" ><strong>Go Back to Home</strong></a>
+        <div class="col-lg-5">
+            <div class="bp-card p-4 h-100">
+                <h2 class="h6 text-body-secondary fw-semibold mb-3">Features the model generally relies on most</h2>
+                {% if result.top_features %}
+                {% for label, share in result.top_features %}
+                {% widthratio share 1 100 as share_pct %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="fw-medium">{{ label }}</span>
+                        <span class="text-body-secondary">{{ share|floatformat:3 }}</span>
+                    </div>
+                    <div class="progress bp-meter" role="progressbar" aria-label="{{ label }} importance" aria-valuenow="{{ share_pct }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: {{ share_pct }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                <p class="bp-disclaimer mb-0">
+                    Global impurity-based importances from the Random Forest (all features sum to 1). They
+                    describe the model overall, not why this particular prediction was made.
+                </p>
+                {% else %}
+                <p class="bp-disclaimer mb-0">
+                    Not shown for this model. It is a linear model trained on unscaled inputs, so its
+                    coefficients are not comparable across features measured in different units.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="bp-card p-4">
+                <h2 class="h6 text-body-secondary fw-semibold mb-3">Inputs submitted</h2>
+                <dl class="row bp-summary mb-0">
+                    {% for label, value in summary %}
+                    <div class="col-sm-6 col-lg-4 mb-3">
+                        <dt>{{ label }}</dt>
+                        <dd class="mb-0">{{ value }}</dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-secondary bp-disclaimer mt-4 mb-4" role="note">
+        <i class="bi bi-info-circle me-1"></i>
+        BioPredict is an educational demonstration of machine-learning models. Its output is not a medical
+        diagnosis and should not be used to make health decisions.
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row gap-3">
+        <a href="{% url predictor.key %}" class="btn btn-bp btn-lg"><i class="bi bi-arrow-repeat me-1"></i> Run another assessment</a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-house me-1"></i> Back to home</a>
     </div>
 </div>
-
-<style>
-    .container {
-        max-width: 600px;
-    }
-    .animate__animated {
-        animation-duration: 1.5s;
-    }
-
-
-/* Dark Mode Styling */
-body.dark-mode {
-    background-color: #2E2E2E;
-    color: #F5F6FA;
-}
-
-.dark-mode .card {
-    background-color: #3E3E3E;
-    color: #F5F6FA;
-}
-
-.dark-mode .list-group-item {
-    background-color: #3E3E3E;
-    color: #F5F6FA;
-}
-
-.dark-mode .btn {
-    color: white;
-}
-
-/* Dark Mode Toggle Button */
-#dark-mode-toggle {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-}
-
-</style>
-
-<script>
-    // Check local storage for dark mode preference
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-
-    // Dark Mode Toggle Script
-    document.getElementById('dark-mode-toggle').addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        // Save the preference to local storage
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    });
-</script>
 {% endblock %}

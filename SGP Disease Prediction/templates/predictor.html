@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ predictor.name }} Predictor &middot; BioPredict{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <img src="{% static predictor.icon %}" alt="" class="bp-icon">
+        <div>
+            <h1 class="h3 fw-bold mb-1">{{ predictor.name }} Predictor</h1>
+            <p class="text-body-secondary mb-0">{{ predictor.model_type }} &middot; {{ predictor.features|length }} inputs &middot; all fields required</p>
+        </div>
+    </div>
+
+    <div class="bp-card p-4 p-md-5">
+        <form method="post" action="{% url predictor.key %}" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">{{ form.non_field_errors|join:" " }}</div>
+            {% elif form.errors %}
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-circle me-1"></i> Please correct the highlighted fields below.
+            </div>
+            {% endif %}
+
+            {% for title, fields in form.grouped_fields %}
+            <fieldset class="bp-fieldset mb-4">
+                <legend>{{ title }}</legend>
+                <div class="row g-3">
+                    {% for field, unit in fields %}
+                    <div class="col-12 col-md-6">
+                        {% if field.widget_type == 'radioselect' %}
+                        <div class="form-label" id="{{ field.auto_id }}_label">{{ field.label }}</div>
+                        <div class="btn-group w-100" role="group" aria-labelledby="{{ field.auto_id }}_label">
+                            {% for radio in field %}
+                            {{ radio.tag }}
+                            <label class="btn btn-outline-secondary" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if unit %}
+                        <div class="input-group has-validation">
+                            {{ field }}
+                            <span class="input-group-text">{{ unit }}</span>
+                        </div>
+                        {% else %}
+                        {{ field }}
+                        {% endif %}
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block">{{ field.errors|join:" " }}</div>
+                        {% elif field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            {% endfor %}
+
+            <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between pt-2">
+                <p class="bp-disclaimer mb-0">Results come from an ML model and are not a medical diagnosis.</p>
+                <button class="btn btn-bp btn-lg px-4" type="submit">
+                    <i class="bi bi-activity me-1"></i> Analyze Risk
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

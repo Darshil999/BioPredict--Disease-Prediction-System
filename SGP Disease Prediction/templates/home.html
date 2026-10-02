@@ -2,216 +2,68 @@
 {% load static %}
 
 {% block content %}
-<!-- Dark Mode Toggle -->
-<button id="dark-mode-toggle" class="btn btn-secondary">Toggle Dark Mode</button>
-
-<div class="parallax-container">
-    <div class="parallax-text text-center">
-        <h1>Welcome to the Health Prediction System</h1>
-        <p>Predict the risk of heart disease, diabetes, and lung cancer with cutting-edge technology.</p>
-        <a href="#info-section" class="btn btn-primary btn-lg mt-3">Learn More</a>
-    </div>
-</div>
-
-<section id="info-section" class="container my-5">
-    <h3 class="text-center" style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #F39C12;">Why Health Predictions Matter</h3>
-    <p class="text-center" style="color: #7F8C8D;">Heart disease, diabetes, and lung cancer are among the most prevalent health issues. Early detection saves lives. Use our advanced algorithms to get insights into your health risks.</p>
-
-    <div class="row my-4 text-center">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-orange">
-                <img src="{% static 'images/heart.jpg' %}" class="card-img-top" alt="Heart Disease">
-                <div class="card-body">
-                    <h5 class="card-title text-orange">Heart Disease</h5>
-                    <img src="{% static 'images/heart-icon.png' %}" alt="Heart Icon" class="icon">
-                    <p>Understand your risks and take control of your heart health.</p>
-                </div>
-                <a href="heart" class="btn btn-warning">Check Risk</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-yellow">
-                <img src="{% static 'images/diabetes.jpg' %}" class="card-img-top" alt="Diabetes">
-                <div class="card-body">
-                    <h5 class="card-title text-yellow">Diabetes</h5>
-                    <img src="{% static 'images/diabetes-icon.png' %}" alt="Diabetes Icon" class="icon">
-                    <p>Monitor your blood sugar levels and manage risks effectively.</p>
-                </div>
-                <a href="{% url 'diabetes' %}" class="btn btn-warning">Check Risk</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-red">
-                <img src="{% static 'images/lung.jpg' %}" class="card-img-top" alt="Lung Cancer">
-                <div class="card-body">
-                    <h5 class="card-title text-red">Lung Cancer</h5>
-                    <img src="{% static 'images/lung-icon.png' %}" alt="Lung Icon" class="icon">
-                    <p>Assess your lung cancer risk and get recommendations for prevention.</p>
-                </div>
-                <a href="lung_cancer" class="btn btn-warning">Check Risk</a>
+<section class="bp-hero py-5">
+    <div class="container py-md-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <p class="bp-eyebrow mb-2">Django &middot; scikit-learn</p>
+                <h1 class="display-5 mb-3">Machine Learning Powered Health Risk Screening</h1>
+                <p class="lead text-body-secondary mb-4">
+                    BioPredict demonstrates how trained machine-learning models can screen for heart disease,
+                    diabetes and lung cancer risk from a handful of health indicators &mdash; and shows what
+                    each model returned, how confident it was, and which inputs it was given.
+                </p>
+                <a href="#predictors" class="btn btn-bp btn-lg">Explore Predictors</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Health Tips Section -->
-<section class="container my-5">
-    <h3 class="text-center" style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #F39C12;">Quick Health Tips</h3>
-    <ul class="list-group">
-        <li class="list-group-item">1. Maintain a balanced diet rich in fruits and vegetables.</li>
-        <li class="list-group-item">2. Exercise regularly for at least 30 minutes a day.</li>
-        <li class="list-group-item">3. Avoid smoking and limit alcohol consumption.</li>
-        <li class="list-group-item">4. Get regular health check-ups and screenings.</li>
-        <li class="list-group-item">5. Stay hydrated and manage stress effectively.</li>
-    </ul>
+<section id="predictors" class="container pb-5">
+    <h2 class="h4 fw-semibold mb-4">Predictors</h2>
+    <div class="row g-4">
+        {% for predictor in predictors %}
+        <div class="col-md-4">
+            <a href="{% url predictor.key %}" class="d-block h-100 text-reset text-decoration-none">
+                <div class="bp-card bp-predictor-card h-100 p-4 d-flex flex-column">
+                    <img src="{% static predictor.icon %}" alt="" class="bp-icon mb-3">
+                    <h3 class="h5 fw-semibold mb-2">{{ predictor.name }}</h3>
+                    <p class="text-body-secondary mb-3">{{ predictor.description }}</p>
+                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                        <span class="badge rounded-pill bg-body-tertiary text-body-secondary border fw-medium">{{ predictor.model_type }}</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
 </section>
 
-<!-- Testimonials Section -->
-<section class="container my-5">
-    <h3 class="text-center" style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #F39C12;">What Our Users Say</h3>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <p class="card-text">"Thanks to the health prediction system, I was able to detect my diabetes early and take action!"</p>
-                    <footer class="blockquote-footer">- User A</footer>
-                </div>
+<section class="container pb-4">
+    <h2 class="h4 fw-semibold mb-4">How it works</h2>
+    <div class="row g-4">
+        <div class="col-md-4 d-flex gap-3">
+            <span class="bp-step flex-shrink-0">1</span>
+            <div>
+                <h3 class="h6 fw-semibold mb-1">Enter health indicators</h3>
+                <p class="text-body-secondary mb-0">Fill in a short, validated form for the predictor you choose.</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <p class="card-text">"The lung cancer assessment helped me understand my risks and led me to quit smoking!"</p>
-                    <footer class="blockquote-footer">- User B</footer>
-                </div>
+        <div class="col-md-4 d-flex gap-3">
+            <span class="bp-step flex-shrink-0">2</span>
+            <div>
+                <h3 class="h6 fw-semibold mb-1">ML model analyzes inputs</h3>
+                <p class="text-body-secondary mb-0">The inputs are passed, in training order, to a pre-trained scikit-learn model.</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <p class="card-text">"I learned a lot from the heart disease predictions and have since improved my lifestyle."</p>
-                    <footer class="blockquote-footer">- User C</footer>
-                </div>
+        <div class="col-md-4 d-flex gap-3">
+            <span class="bp-step flex-shrink-0">3</span>
+            <div>
+                <h3 class="h6 fw-semibold mb-1">Review prediction insights</h3>
+                <p class="text-body-secondary mb-0">See the predicted risk class, model confidence where available, and an input summary.</p>
             </div>
         </div>
     </div>
 </section>
-
-<style>
-/* Parallax Container */
-.parallax-container {
-    background: url('{% static "images/health-bg.jpeg" %}') no-repeat center center/cover;
-    height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.parallax-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(243, 156, 18, 0.6);
-}
-
-.parallax-text {
-    position: relative;
-    z-index: 1;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    padding: 20px;
-}
-
-.parallax-text h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-}
-
-.parallax-text p {
-    font-size: 1.2rem;
-}
-
-/* Card Styling */
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card h5 {
-    font-weight: 600;
-}
-
-.card a {
-    margin-top: 10px;
-}
-
-/* Section Heading */
-h3 {
-    font-size: 2.2rem;
-    margin-bottom: 20px;
-}
-
-/* Body Styling */
-body {
-    background-color: #fff;
-}
-
-.icon {
-    width: 50px;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-/* Dark Mode Styling */
-body.dark-mode {
-    background-color: #2E2E2E;
-    color: #F5F6FA;
-}
-
-.dark-mode .card {
-    background-color: #3E3E3E;
-    color: #F5F6FA;
-}
-
-.dark-mode .list-group-item {
-    background-color: #3E3E3E;
-    color: #F5F6FA;
-}
-
-.dark-mode .btn {
-    color: white;
-}
-
-/* Dark Mode Toggle Button */
-#dark-mode-toggle {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-}
-</style>
-
-<script>
-    // Check local storage for dark mode preference
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-
-    // Dark Mode Toggle Script
-    document.getElementById('dark-mode-toggle').addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        // Save the preference to local storage
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    });
-</script>
-
-
 {% endblock %}
