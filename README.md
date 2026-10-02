@@ -64,7 +64,7 @@ Browser form ──POST──▶ views._predictor_view
 Requires Python 3.10+.
 
 ```bash
-git clone <your-repo-url>
+git clone "https://github.com/Darshil999/BioPredict--Disease-Prediction-System"
 cd BioPredict--Disease-Prediction-System
 python -m venv .venv
 # Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
