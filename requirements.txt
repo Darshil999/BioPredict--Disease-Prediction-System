@@ -1,0 +1,4 @@
+Django>=5.1,<5.2
+# The bundled .pkl models were saved with scikit-learn 1.5.2; keep this pinned.
+scikit-learn==1.5.2
+numpy>=1.26
